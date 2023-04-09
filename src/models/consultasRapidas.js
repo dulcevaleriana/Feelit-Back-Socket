@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const consultasRapidasSchema = mongoose.Schema({
     idPaciente:{ type: mongoose.Types.ObjectId, required: true, ref: 'Paciente'},
@@ -23,4 +23,4 @@ const consultasRapidasSchema = mongoose.Schema({
     doctorPrice:{type:Number,required:true}
 })
 
-module.exports = mongoose.model('ConsultasRapidas',consultasRapidasSchema)
+export default mongoose.model('ConsultasRapidas',consultasRapidasSchema)

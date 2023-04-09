@@ -1,14 +1,14 @@
-// Import models or controller with intern models here
-import httpError from "./models/http-error";
+// Import models or controller with intern models hereHttpError
 import { v4 as uuidv4 } from "uuid";
-import AgendarCita from './models/agendarCita';
-import ConsultasRapidas from "./models/consultasRapidas";
-import EnviarExamenes from "./models/enviarExamenes";
-import Doctor from './models/doctor';
-import Paciente from './models/paciente';
 import { default as mongoose } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import HttpError from './models/http-error.js';
+import AgendarCita from './models/agendarCita.js';
+import ConsultasRapidas from './models/consultasRapidas.js';
+import EnviarExamenes from './models/enviarExamenes.js';
+import Doctor from './models/doctor.js';
+import Paciente from './models/paciente.js';
 
 
 // here we create or add the CRUD process to create, read, update and delete
@@ -48,17 +48,17 @@ export default (io,app) => {
                     const verifyDoctorDates = doctorDates.find(d => d.date === date);
 
                     if(!paciente){
-                        return next(new httpError(`we can't find this paciente`,404))
+                        return next(new HttpError(`we can't find this paciente`,404))
                     }
                     if(!doctor){
-                        return next(new httpError(`we can't find this doctor`,404))
+                        return next(new HttpError(`we can't find this doctor`,404))
                     }
                     if(verifyPacienteDates || verifyDoctorDates){
                         const verifyPacienteTime = pacienteDates.find(d => d.time === time)
                         const verifyDoctorTime = doctorDates.find(d => d.time === time)
 
                         if(verifyPacienteTime || verifyDoctorTime){
-                            throw new httpError(`We can't save this date with the same date and hour`,404)
+                            throw new HttpError(`We can't save this date with the same date and hour`,404)
                         }
                     }
 
@@ -79,7 +79,7 @@ export default (io,app) => {
                     sess.commitTransaction();
 
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,422))
+                    return next(new HttpError(`something went wrong ${err}`,422))
                 }
 
                 res.status(201).json({message:'your date was already agended!',createAgendarCita})
@@ -91,7 +91,7 @@ export default (io,app) => {
                 try{
                     AgendarCitaDBA = await AgendarCita.find().exec();
                 }catch(err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 res.json({AgendarCitaDBA})
@@ -105,11 +105,11 @@ export default (io,app) => {
                     getAgendarCitaId = await AgendarCita.findById(agendarCitaId);
 
                     if(!getAgendarCitaId){
-                        throw new httpError('Could not find this date',404)
+                        throw new HttpError('Could not find this date',404)
                     }
 
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getAgendarCitaId})
@@ -123,11 +123,11 @@ export default (io,app) => {
                     getAgendarCitaStatus = await AgendarCita.find({status:agendarCitaStatus})
 
                     if(getAgendarCitaStatus.length === 0 || agendarCitaStatus === undefined){
-                        throw new httpError(`Could not find dates with status ${req.params.ToF}`,404)
+                        throw new HttpError(`Could not find dates with status ${req.params.ToF}`,404)
                     }
 
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getAgendarCitaStatus})
@@ -141,11 +141,11 @@ export default (io,app) => {
                     getAgendarCitaDoctor = await AgendarCita.find({idDoctor:doctorId})
 
                     if(!getAgendarCitaDoctor){
-                        throw new httpError(`Could not find any dates with this doctor`,404)
+                        throw new HttpError(`Could not find any dates with this doctor`,404)
                     }
 
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getAgendarCitaDoctor})
@@ -159,10 +159,10 @@ export default (io,app) => {
                     getAgendarCitaDate = await AgendarCita.find({date:agendarCitaDate})
 
                     if(getAgendarCitaDate < 1){
-                        throw new httpError(`Could not find any with this date`,404)
+                        throw new HttpError(`Could not find any with this date`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getAgendarCitaDate})
@@ -190,11 +190,11 @@ export default (io,app) => {
                     const verifyDoctorDates = doctorDates.find(d => d.date === date);
 
                     if(!updateAgendarCita){
-                        throw new httpError(`We can't find this date`,404)
+                        throw new HttpError(`We can't find this date`,404)
                     }
 
                     if(updateAgendarCita.status === 'Rechazado'){
-                        throw new httpError(`We can't modified a date canceled`,404)
+                        throw new HttpError(`We can't modified a date canceled`,404)
                     }
 
                     if(verifyPacienteDates || verifyDoctorDates){
@@ -202,7 +202,7 @@ export default (io,app) => {
                         const verifyDoctorTime = doctorDates.find(d => d.time === time)
 
                         if(verifyPacienteTime || verifyDoctorTime){
-                            throw new httpError(`We can't save this date with the same date and hour`,404)
+                            throw new HttpError(`We can't save this date with the same date and hour`,404)
                         }
                     }
 
@@ -213,7 +213,7 @@ export default (io,app) => {
                     if( updateAgendarCita.status === 'Aprobado' && updateAgendarCita.paymentStatus === true ){
                         updateAgendarCita.chat = [... updateAgendarCita.chat, chat]
                     } else {
-                        throw new httpError(`you have to pay to start this chat`,404)
+                        throw new HttpError(`you have to pay to start this chat`,404)
                     }
 
                     await updateAgendarCita.save().then(data => {
@@ -222,7 +222,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 } catch(err){
-                    return next(new httpError(`something went wrong: ${err}`,404));
+                    return next(new HttpError(`something went wrong: ${err}`,404));
                 }
 
                 res.status(201).json({message:'your date was already modified!',updateAgendarCita})
@@ -239,7 +239,7 @@ export default (io,app) => {
                     deleteAgendaCita = await AgendarCita.findById(agendarCitaId);
 
                     if(!deleteAgendaCita){
-                        throw new httpError('We can`t find this date',404)
+                        throw new HttpError('We can`t find this date',404)
                     }
 
                     deleteAgendaCita.status = 'Rechazado';
@@ -253,7 +253,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 }catch(err){
-                    return next(new httpError(`something went wrong: ${err}`,404));
+                    return next(new HttpError(`something went wrong: ${err}`,404));
                 }
 
                 res.status(201).json({message:`your date was already canceled! now your status is ${deleteAgendaCita.status}`,deleteAgendaCita})
@@ -270,7 +270,7 @@ export default (io,app) => {
                     deleteAgendaCita = await AgendarCita.findById(agendarCitaId);
 
                     if(!deleteAgendaCita){
-                        throw new httpError('We can`t find this date',404)
+                        throw new HttpError('We can`t find this date',404)
                     }
 
                     deleteAgendaCita.status = 'Aprobado';
@@ -284,7 +284,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 }catch(err){
-                    return next(new httpError(`something went wrong: ${err}`,404));
+                    return next(new HttpError(`something went wrong: ${err}`,404));
                 }
 
                 res.status(201).json({message:`your date was already active again! now your status is ${deleteAgendaCita.status}`,deleteAgendaCita})
@@ -323,13 +323,13 @@ export default (io,app) => {
                     const checkDoctorTime = checkDoctor.find(p => p.time === time);
 
                     if(!paciente){
-                        return next(new httpError(`we don't find any paciente`,404));
+                        return next(new HttpError(`we don't find any paciente`,404));
                     }
                     if(!doctor){
-                        return next(new httpError(`we don't find any `,404));
+                        return next(new HttpError(`we don't find any `,404));
                     }
                     if(checkPacienteTime || checkDoctorTime){
-                        return next(new httpError(`this time isn't avaible, try with another one`,404));
+                        return next(new HttpError(`this time isn't avaible, try with another one`,404));
                     }
 
                     const sess = await mongoose.startSession();
@@ -348,7 +348,7 @@ export default (io,app) => {
                     sess.commitTransaction();
 
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({message:'This flash date was already created!!', createConsultasRapidas})
@@ -360,7 +360,7 @@ export default (io,app) => {
                 try {
                     getAllconsultasRapidas = await ConsultasRapidas.find().exec();
                 }catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.json({getAllconsultasRapidas})
@@ -374,10 +374,10 @@ export default (io,app) => {
                     getConsultasRapidasId = await ConsultasRapidas.findById(consultaFlashId);
 
                     if(!getConsultasRapidasId){
-                        throw new httpError('could not find any flash consult',404)
+                        throw new HttpError('could not find any flash consult',404)
                     }
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getConsultasRapidasId})
@@ -391,10 +391,10 @@ export default (io,app) => {
                     getConsultasRapidasStatus = await ConsultasRapidas.find({status:consultaFlashStatus});
 
                     if(getConsultasRapidasStatus.length < 1 || consultaFlashStatus === undefined){
-                        throw new httpError(`could not find any flash consult with status ${req.params.ToF}`,404)
+                        throw new HttpError(`could not find any flash consult with status ${req.params.ToF}`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getConsultasRapidasStatus});
@@ -408,10 +408,10 @@ export default (io,app) => {
                     getConsultasRapidasDoctor = await ConsultasRapidas.find({idDoctor:doctorId});
 
                     if(getConsultasRapidasDoctor.length < 1){
-                        throw new httpError(`could not find any flash consult with this doctor`,404)
+                        throw new HttpError(`could not find any flash consult with this doctor`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getConsultasRapidasDoctor})
@@ -425,10 +425,10 @@ export default (io,app) => {
                     getConsultasRapidasPaciente = await ConsultasRapidas.find({idPaciente:pacienteId});
 
                     if(getConsultasRapidasPaciente.length < 1){
-                        throw new httpError(`could not find any flash consult with this paciente`,404)
+                        throw new HttpError(`could not find any flash consult with this paciente`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getConsultasRapidasPaciente})
@@ -444,17 +444,17 @@ export default (io,app) => {
                     getConsultasRapidasDoctor = await ConsultasRapidas.find({idDoctor:doctorId});
 
                     if(getConsultasRapidasDoctor.length === 0){
-                        throw new httpError(`could not find any flash consult with this doctor`,404)
+                        throw new HttpError(`could not find any flash consult with this doctor`,404)
                     }
 
                     getConsultasRapidasPaciente = getConsultasRapidasDoctor.filter(data => data.idPaciente.toString() === pacienteId)
 
                     if(getConsultasRapidasPaciente.length === 0){
-                        throw new httpError(`could not find any flash consult with this paciente`,404)
+                        throw new HttpError(`could not find any flash consult with this paciente`,404)
                     }
 
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getConsultasRapidasPaciente:getConsultasRapidasPaciente})
@@ -468,10 +468,10 @@ export default (io,app) => {
                     getConsultasRapidasDate = await ConsultasRapidas.find({dateCreated:consultasRapidasDate})
 
                     if(getConsultasRapidasDate.length < 1){
-                        throw new httpError(`Could not find any with this date`,404)
+                        throw new HttpError(`Could not find any with this date`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getConsultasRapidasDate})
@@ -492,19 +492,19 @@ export default (io,app) => {
                     const doctor = await Doctor.findById(idDoctor);
 
                     if(!verifyconsultaFlashId){
-                        throw new httpError(`We can't find this flash date`,404)
+                        throw new HttpError(`We can't find this flash date`,404)
                     }
                     if(!paciente){
-                        return next(new httpError(`we don't find any paciente`,404));
+                        return next(new HttpError(`we don't find any paciente`,404));
                     }
                     if(!doctor){
-                        return next(new httpError(`we don't find any `,404));
+                        return next(new HttpError(`we don't find any `,404));
                     }
 
                     if( verifyconsultaFlashId.status === 'Aprobado' && verifyconsultaFlashId.paymentStatus === true ){
                         verifyconsultaFlashId.chat = [ ... verifyconsultaFlashId.chat, chat]
                     } else {
-                        throw new httpError(`you have to pay to start this chat`,404)
+                        throw new HttpError(`you have to pay to start this chat`,404)
                     }
 
                     const sess = await mongoose.startSession();
@@ -523,7 +523,7 @@ export default (io,app) => {
                     sess.commitTransaction();
 
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({message:'This flash consult was edited succesfully!!',verifyconsultaFlashId})
@@ -540,7 +540,7 @@ export default (io,app) => {
                     deleteconsultaRapidas = await ConsultasRapidas.findById(consultaFlashId);
 
                     if(!deleteconsultaRapidas){
-                        throw new httpError('We can`t find this date',404)
+                        throw new HttpError('We can`t find this date',404)
                     }
 
                     deleteconsultaRapidas.status = 'Rechazado';
@@ -554,7 +554,7 @@ export default (io,app) => {
                     }).catch();
 
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({message:'your date was already canceled!',deleteconsultaRapidas})
@@ -571,7 +571,7 @@ export default (io,app) => {
                     activeconsultaRapidas = await ConsultasRapidas.findById(consultaFlashId);
 
                     if(!activeconsultaRapidas){
-                        throw new httpError('We can`t find this date',404)
+                        throw new HttpError('We can`t find this date',404)
                     }
 
                     activeconsultaRapidas.status = 'Aprobado';
@@ -585,7 +585,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({message:'your date was already activate again!',activeconsultaRapidas})
@@ -599,7 +599,7 @@ export default (io,app) => {
                     completeconsultaRapidas = await ConsultasRapidas.findById(consultaFlashId);
 
                     if(!completeconsultaRapidas){
-                        throw new httpError('We can`t find this date',404)
+                        throw new HttpError('We can`t find this date',404)
                     }
 
                     completeconsultaRapidas.status = 'Completado';
@@ -609,7 +609,7 @@ export default (io,app) => {
                     }).catch();
 
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({message:'your date was already complete!',completeconsultaRapidas})
@@ -645,10 +645,10 @@ export default (io,app) => {
                     const doctor = await Doctor.findById(idDoctor);
 
                     if(!paciente){
-                        return next(new httpError(`we can't find this paciente`,404))
+                        return next(new HttpError(`we can't find this paciente`,404))
                     }
                     if(!doctor){
-                        return next(new httpError(`we can't find this doctor`,404))
+                        return next(new HttpError(`we can't find this doctor`,404))
                     }
 
                     createEnviarExamenes.messageDoctor = `Dr. ${doctor.name} will send you a response soon`;
@@ -668,7 +668,7 @@ export default (io,app) => {
 
                     sess.commitTransaction();
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:'These exams was already sended!!',createEnviarExamenes})
@@ -680,7 +680,7 @@ export default (io,app) => {
                 try {
                     getAllEnviarExamenes = await EnviarExamenes.find().exec();
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.json({getAllEnviarExamenes});
@@ -694,10 +694,10 @@ export default (io,app) => {
                     getEnviarExamenesId = await EnviarExamenes.findById(enviarExamenesId);
 
                     if(!getEnviarExamenesId){
-                        throw new httpError('could not find any examn sended',404)
+                        throw new HttpError('could not find any examn sended',404)
                     }
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getEnviarExamenesId})
@@ -711,10 +711,10 @@ export default (io,app) => {
                     getEnviarExamenesStatus = await EnviarExamenes.find({status:enviarExamenesStatus});
 
                     if(getEnviarExamenesStatus < 1 || enviarExamenesStatus === undefined){
-                        throw new httpError(`could not find any examn sended with status ${req.params.ToF}`,404)
+                        throw new HttpError(`could not find any examn sended with status ${req.params.ToF}`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getEnviarExamenesStatus});
@@ -728,10 +728,10 @@ export default (io,app) => {
                     getEnviarExamenesDoctor = await EnviarExamenes.find({idDoctor:doctorId});
 
                     if(getEnviarExamenesDoctor < 1){
-                        throw new httpError(`could not find any examn sended with this doctor`,404)
+                        throw new HttpError(`could not find any examn sended with this doctor`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getEnviarExamenesDoctor})
@@ -744,10 +744,10 @@ export default (io,app) => {
                 try {
                     getEnviarExamenesDate = await EnviarExamenes.find({dateCreated:consultasRapidasDate})
                     if(getEnviarExamenesDate < 1){
-                        throw new httpError(`Could not find any with this date`,404)
+                        throw new HttpError(`Could not find any with this date`,404)
                     }
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getEnviarExamenesDate})
@@ -770,10 +770,10 @@ export default (io,app) => {
                     const getDoctor = await Doctor.findById(verifyenviarExamenesId.idDoctor.toString());
 
                     if(!verifyenviarExamenesId){
-                        throw new httpError('Could not find any exams sended',404)
+                        throw new HttpError('Could not find any exams sended',404)
                     }
                     if(verifyPacienteId === false){
-                        throw new httpError('Could not find any exams sended by you',404)
+                        throw new HttpError('Could not find any exams sended by you',404)
                     }
 
                     verifyenviarExamenesId.messagePaciente = messagePaciente;
@@ -782,7 +782,7 @@ export default (io,app) => {
                     if( verifyenviarExamenesId.status === 'Aprobado' && verifyenviarExamenesId.paymentStatus === true ){
                         verifyenviarExamenesId.chat = [... verifyenviarExamenesId.chat, chat]
                     } else {
-                        throw new httpError(`you have to pay to start this chat`,404)
+                        throw new HttpError(`you have to pay to start this chat`,404)
                     }
 
                     const sess = await mongoose.startSession();
@@ -801,7 +801,7 @@ export default (io,app) => {
                     sess.commitTransaction();
 
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404));
+                    return next(new HttpError(`somenthing went wrong ${err}`,404));
                 }
 
                 res.status(201).json({message:'Your exam sended was edited succesfully',verifyenviarExamenesId})
@@ -818,7 +818,7 @@ export default (io,app) => {
                     deleteEnviarExamenes = await EnviarExamenes.findById(enviarExamenesId);
 
                     if(!deleteEnviarExamenes){
-                        throw new httpError('We can`t find any exam sended',404)
+                        throw new HttpError('We can`t find any exam sended',404)
                     }
 
                     deleteEnviarExamenes.status = 'Rechazado';
@@ -831,7 +831,7 @@ export default (io,app) => {
                         res.json({message:'PART 2 your exam sended was already canceled!',data})
                     }).catch();
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404));
+                    return next(new HttpError(`somenthing went wrong ${err}`,404));
                 }
 
                 res.status(201).json({message:'your exam sended was already canceled!',deleteEnviarExamenes})
@@ -848,7 +848,7 @@ export default (io,app) => {
                     activeEnviarExamenes = await EnviarExamenes.findById(enviarExamenesId);
 
                     if(!activeEnviarExamenes){
-                        throw new httpError('We can`t find any exam sended',404)
+                        throw new HttpError('We can`t find any exam sended',404)
                     }
 
                     // move this to a payment function (in a future)
@@ -861,7 +861,7 @@ export default (io,app) => {
                         res.json({message:'PART 2 your exam sended was already active again!!',data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404));
+                    return next(new HttpError(`somenthing went wrong ${err}`,404));
                 }
 
                 res.status(201).json({message:'your exam sended was already active again!!',activeEnviarExamenes})
@@ -888,7 +888,7 @@ export default (io,app) => {
                 try{
                     hashPassword = await bcrypt.hash(password, 12);
                 } catch(err){
-                    return next(new httpError('Could not create Doctor, please try again',500));
+                    return next(new HttpError('Could not create Doctor, please try again',500));
                 }
 
                 const createDoctor = new Doctor({
@@ -913,10 +913,10 @@ export default (io,app) => {
                     const ifEmailExist = await Doctor.findOne({email:email});
 
                     if(ifCedulaExist){
-                        throw new httpError(`a user with this cedula: ${cedula} is already exist`,322)
+                        throw new HttpError(`a user with this cedula: ${cedula} is already exist`,322)
                     }
                     if(ifEmailExist){
-                        throw new httpError(`a user with this email: ${email} is already exist`,322)
+                        throw new HttpError(`a user with this email: ${email} is already exist`,322)
                     }
 
                     await createDoctor.save().then(data =>{
@@ -924,7 +924,7 @@ export default (io,app) => {
                         res.json({message:"doctor created",data})
                     }).catch();
                 } catch(err) {
-                    return next(new httpError(`could not create this doctor account, try again please ${err}`,500))
+                    return next(new HttpError(`could not create this doctor account, try again please ${err}`,500))
                 }
 
                 let token;
@@ -941,7 +941,7 @@ export default (io,app) => {
                         }
                     );
                 } catch(err){
-                    return next(new httpError('Could not create user, please try again',400));
+                    return next(new HttpError('Could not create user, please try again',400));
                 }
 
                 res.json({doctorId: createDoctor.id,email: createDoctor.email, rol: createDoctor.rol, token: token})
@@ -953,7 +953,7 @@ export default (io,app) => {
                 try {
                     getAllDoctor = await Doctor.find().exec();
                 } catch(err) {
-                    return next(new httpError(`Something went wrong ${err}`,404))
+                    return next(new HttpError(`Something went wrong ${err}`,404))
                 }
 
                 res.json({getAllDoctor:getAllDoctor.map(data => data.toObject({getters:true}))})
@@ -966,7 +966,7 @@ export default (io,app) => {
                 try {
                     getDoctorById = await Doctor.findById(doctorId);
                 } catch(err) {
-                    return next(new httpError(`Something went wrong ${err}`,404))
+                    return next(new HttpError(`Something went wrong ${err}`,404))
                 }
 
                 res.json({getDoctorById:getDoctorById.toObject({getters:true})})
@@ -979,10 +979,10 @@ export default (io,app) => {
                 try {
                     getAllDoctorBySpecialty = await Doctor.find({specialty:specialty});
                     if(getAllDoctorBySpecialty.length === 0){
-                        return next(new httpError(`Could not find any doctor with this specialty`,404))
+                        return next(new HttpError(`Could not find any doctor with this specialty`,404))
                     }
                 } catch(err){
-                    return next(new httpError(`Could not find this specialty ${err}`,404))
+                    return next(new HttpError(`Could not find this specialty ${err}`,404))
                 }
 
                 res.json({getAllDoctorBySpecialty:getAllDoctorBySpecialty.map(data => data.toObject({getters:true}))})
@@ -1001,7 +1001,7 @@ export default (io,app) => {
                     getEnviarResultados = await EnviarExamenes.find({idDoctor:doctorId});
 
                     if(getConsultasRapida.length === 0 && getAgendarCita.length === 0  && getEnviarResultados.length === 0){
-                        throw new httpError(`this doctor doesn't create any services yet`,404)
+                        throw new HttpError(`this doctor doesn't create any services yet`,404)
                     }
 
                     getAllServices = [
@@ -1010,7 +1010,7 @@ export default (io,app) => {
                         ...getEnviarResultados
                     ]
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getAllServices})
@@ -1039,14 +1039,14 @@ export default (io,app) => {
                 try{
                     hashPassword = await bcrypt.hash(password, 12);
                 } catch(err){
-                    return next(new httpError('Could not create Doctor, please try again',500));
+                    return next(new HttpError('Could not create Doctor, please try again',500));
                 }
 
                 try {
                     updateDoctor = await Doctor.findById(doctorId);
 
                     if(updateDoctor.status === false){
-                        return next(new httpError(`We can't modify a doctor inactive`,500));
+                        return next(new HttpError(`We can't modify a doctor inactive`,500));
                     }
 
                     updateDoctor.name = name;
@@ -1068,7 +1068,7 @@ export default (io,app) => {
                         res.json({message:'PART 2, doctor`s account was succesfull edited: ',data})
                     }).catch(err => res.status(500).json(err));
                 } catch (err) {
-                    return next(new httpError(`Somethig went wrong, please try again 2 ${err}`,500));
+                    return next(new HttpError(`Somethig went wrong, please try again 2 ${err}`,500));
                 }
 
                 res.status(201).json({message:'doctor`s account was succesfull edited: ',updateDoctor:updateDoctor.toObject({getters:true})})
@@ -1087,7 +1087,7 @@ export default (io,app) => {
                         res.json({message:`PART 2, doctor's account was succesfull off, now it status is: ${setDoctorStatusFalse.status}: `,data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`we can't find this doctor ${err}`,404))
+                    return next(new HttpError(`we can't find this doctor ${err}`,404))
                 }
 
                 res.status(201).json({message:`doctor's account was succesfull off, now it status is: ${setDoctorStatusFalse.status}: `,setDoctorStatusFalse:setDoctorStatusFalse.toObject({getters:true})})
@@ -1106,7 +1106,7 @@ export default (io,app) => {
                         res.json({message:`PART 2, doctor's account was succesfull active again, now it status is: ${setDoctorStatusTrue.status}: `,data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`we can't find this doctor ${err}`,404))
+                    return next(new HttpError(`we can't find this doctor ${err}`,404))
                 }
 
                 res.status(201).json({message:`doctor's account was succesfull active again, now it status is: ${setDoctorStatusTrue.status}: `,setDoctorStatusTrue:setDoctorStatusTrue.toObject({getters:true})})
@@ -1123,26 +1123,26 @@ export default (io,app) => {
                     loginDoctor = await Doctor.findOne({email:email});
 
                     if(!loginDoctor){
-                        return next(new httpError(`we can't find your account`,404))
+                        return next(new HttpError(`we can't find your account`,404))
                     }
 
                     if(loginDoctor.status === false){
-                        return next(new httpError(`this doctor was delete, if you want to active again please contact us by email info@feelit.com`,404))
+                        return next(new HttpError(`this doctor was delete, if you want to active again please contact us by email info@feelit.com`,404))
                     }
 
                 } catch (err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 let isValidPassword;
                 try {
                     isValidPassword = await bcrypt.compare(password, loginDoctor.password);
                 } catch(err){
-                    return next(new httpError(`login failed, review your credentials and try again ${err}`,500))
+                    return next(new HttpError(`login failed, review your credentials and try again ${err}`,500))
                 }
 
                 if(!isValidPassword){
-                    return next(new httpError(`login failed, review your credentials and try again`,400))
+                    return next(new HttpError(`login failed, review your credentials and try again`,400))
                 }
 
                 let token;
@@ -1159,7 +1159,7 @@ export default (io,app) => {
                         }
                     );
                 } catch(err){
-                    return next(new httpError('Could not create user, please try again',400));
+                    return next(new HttpError('Could not create user, please try again',400));
                 }
 
                 res.json({doctorId: loginDoctor.id,email: loginDoctor.email,rol: loginDoctor.rol,token: token})
@@ -1182,7 +1182,7 @@ export default (io,app) => {
                 try{
                     hashPassword = await bcrypt.hash(password, 12);
                 } catch(err){
-                    return next(new httpError('Could not create Doctor, please try again',500));
+                    return next(new HttpError('Could not create Doctor, please try again',500));
                 }
 
                 const createPaciente = new Paciente({
@@ -1200,10 +1200,10 @@ export default (io,app) => {
                     const ifEmailExist = await Paciente.findOne({email:email});
 
                     if(ifCedulaExist){
-                        throw new httpError(`a user with this cedula: ${cedula} is already exist`,322)
+                        throw new HttpError(`a user with this cedula: ${cedula} is already exist`,322)
                     }
                     if(ifEmailExist){
-                        throw new httpError(`a user with this email: ${email} is already exist`,322)
+                        throw new HttpError(`a user with this email: ${email} is already exist`,322)
                     }
 
                     createPaciente.save().then(data =>{
@@ -1211,7 +1211,7 @@ export default (io,app) => {
                         res.json({message:"paciente created",data})
                     }).catch(err => res.status(500).json(err));
                 } catch (err) {
-                    return next(new httpError(`something went wrong ${err}`,500))
+                    return next(new HttpError(`something went wrong ${err}`,500))
                 }
 
                 let token;
@@ -1228,7 +1228,7 @@ export default (io,app) => {
                         }
                     );
                 } catch(err){
-                    return next(new httpError('Could not create user, please try again',400));
+                    return next(new HttpError('Could not create user, please try again',400));
                 }
 
                 res.status(201).json({pacienteId: createPaciente.id, email: createPaciente.email, rol: createPaciente.rol, token: token});
@@ -1253,7 +1253,7 @@ export default (io,app) => {
                 try {
                     getPacienteById = await Paciente.findById(pacienteId);
                 } catch(err){
-                    return next(new httpError('we can`t find this paciente',500));
+                    return next(new HttpError('we can`t find this paciente',500));
                 }
 
                 res.json({getPacienteById:getPacienteById.toObject({getters:true})})
@@ -1272,7 +1272,7 @@ export default (io,app) => {
                     getEnviarResultados = await EnviarExamenes.find({idPaciente:pacienteId});
 
                     if(getConsultasRapida.length === 0 && getAgendarCita.length === 0  && getEnviarResultados.length === 0){
-                        throw new httpError(`this paciente doesn't create any services yet`,404)
+                        throw new HttpError(`this paciente doesn't create any services yet`,404)
                     }
 
                     getAllServices = [
@@ -1281,7 +1281,7 @@ export default (io,app) => {
                         ...getEnviarResultados
                     ]
                 } catch(err){
-                    return next(new httpError(`somethign went wrong ${err}`,422));
+                    return next(new HttpError(`somethign went wrong ${err}`,422));
                 }
 
                 res.status(201).json({getAllServices})
@@ -1303,14 +1303,14 @@ export default (io,app) => {
                 try{
                     hashPassword = await bcrypt.hash(password, 12);
                 } catch(err){
-                    return next(new httpError('Could not create Doctor, please try again',500));
+                    return next(new HttpError('Could not create Doctor, please try again',500));
                 }
 
                 try{
                     updatePaciente = await Paciente.findById(pacienteId);
 
                     if(updatePaciente.status === false){
-                        return next(new httpError(`We can't modify a paciente inactive`,500));
+                        return next(new HttpError(`We can't modify a paciente inactive`,500));
                     }
 
                     updatePaciente.cedula = cedula;
@@ -1325,7 +1325,7 @@ export default (io,app) => {
                         res.json({message:'PART 2, paciente`s account was succesfull edited:',data})
                     }).catch();
                 } catch (err){
-                    return next(new httpError(`something went wrong ${err}`,500))
+                    return next(new HttpError(`something went wrong ${err}`,500))
                 }
 
                 res.status(201).json({message:'paciente`s account was succesfull edited:',updatePaciente})
@@ -1343,7 +1343,7 @@ export default (io,app) => {
                         res.json({message:`PART 2, doctor's account was succesfull off, now it status is: ${setDoctorStatusFalse.status}: `,data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,500))
+                    return next(new HttpError(`something went wrong ${err}`,500))
                 }
 
                 res.status(201).json({message:`doctor's account was succesfull off, now it status is: ${setDoctorStatusFalse.status}: `,setDoctorStatusFalse:setDoctorStatusFalse.toObject({getters:true})})
@@ -1361,7 +1361,7 @@ export default (io,app) => {
                         res.json({message:`PART 2, doctor's account was succesfull active again, now it status is: ${setDoctorStatusTrue.status}: `,data})
                     }).catch(err => res.status(500).json(err));;
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,500))
+                    return next(new HttpError(`something went wrong ${err}`,500))
                 }
 
                 res.status(201).json({message:`doctor's account was succesfull active again, now it status is: ${setDoctorStatusTrue.status}: `,setDoctorStatusTrue:setDoctorStatusTrue.toObject({getters:true})})
@@ -1378,26 +1378,26 @@ export default (io,app) => {
                     loginPaciente = await Paciente.findOne({email:email})
 
                     if(!loginPaciente){
-                        return next(new httpError(`we can't find a paciente with this email`,404))
+                        return next(new HttpError(`we can't find a paciente with this email`,404))
                     }
 
                     if(loginPaciente.status === false){
-                        return next(new httpError(`this paciente was delete, if you want to active again please contact us by email info@feelit.com`,404))
+                        return next(new HttpError(`this paciente was delete, if you want to active again please contact us by email info@feelit.com`,404))
                     }
 
                 } catch(err){
-                    return next(new httpError(`something went wrong ${err}`,500))
+                    return next(new HttpError(`something went wrong ${err}`,500))
                 }
 
                 let isValidPassword;
                 try {
                     isValidPassword = await bcrypt.compare(password, loginPaciente.password);
                 } catch(err){
-                    return next(new httpError(`login failed, review your credentials and try again ${err}`,500))
+                    return next(new HttpError(`login failed, review your credentials and try again ${err}`,500))
                 }
 
                 if(!isValidPassword){
-                    return next(new httpError(`login failed, review your credentials and try again`,400))
+                    return next(new HttpError(`login failed, review your credentials and try again`,400))
                 }
 
                 let token;
@@ -1414,7 +1414,7 @@ export default (io,app) => {
                         }
                     );
                 } catch(err){
-                    return next(new httpError('Could not create user, please try again',400));
+                    return next(new HttpError('Could not create user, please try again',400));
                 }
 
                 res.json({pacienteId: loginPaciente.id,email: loginPaciente.email,rol: loginPaciente.rol,token:token})
@@ -1436,14 +1436,14 @@ export default (io,app) => {
                 try{
                     noDuplicateName = await Rol.find({rolName:rolName})
                     if(noDuplicateName.length === 1){
-                        throw new httpError('This Rol was already exist',404)
+                        throw new HttpError('This Rol was already exist',404)
                     }
                     await createRol.save().then(data => {
                         io.emit("backend:create-rol",data);
                         res.json({message:"PART 2, rol created successfully",data})
                     }).catch();
                 }catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:"rol created successfully",createRol})
@@ -1455,10 +1455,10 @@ export default (io,app) => {
                 try{
                     getRol = await Rol.find().exec();
                     if(!getRol){
-                        throw new httpError('Could not find any Rol',404)
+                        throw new HttpError('Could not find any Rol',404)
                     }
                 }catch(err){
-                    return next(new httpError(`something went wrong ${err}`,404))
+                    return next(new HttpError(`something went wrong ${err}`,404))
                 }
 
                 res.json({getRol})
@@ -1471,10 +1471,10 @@ export default (io,app) => {
                 try{
                     getRolById = await Rol.findById(rolId)
                     if(!getRolById){
-                        throw new httpError('Could not find any Rol',404)
+                        throw new HttpError('Could not find any Rol',404)
                     }
                 }catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getRolById})
@@ -1492,10 +1492,10 @@ export default (io,app) => {
                     verifyRolById = await Rol.findById(rolId)
 
                     if(!verifyRolById){
-                        throw new httpError('Could not find any rol',404)
+                        throw new HttpError('Could not find any rol',404)
                     }
                     if(verifyName.length === 1){
-                        throw new httpError('This specialty was already exist',404)
+                        throw new HttpError('This specialty was already exist',404)
                     }
 
                     verifyRolById.rolName = rolName;
@@ -1505,7 +1505,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 }catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:'Rol updated!!',verifyRolById})
@@ -1519,7 +1519,7 @@ export default (io,app) => {
                     verifyRolById = await Rol.findById(rolId)
 
                     if(!verifyRolById){
-                        throw new httpError('Could not find any rol',404)
+                        throw new HttpError('Could not find any rol',404)
                     }
 
                     verifyRolById.status = false;
@@ -1529,7 +1529,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 }catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:'Rol unactive!!',verifyRolById})
@@ -1543,7 +1543,7 @@ export default (io,app) => {
                     verifyRolById = await Rol.findById(rolId)
 
                     if(!verifyRolById){
-                        throw new httpError('Could not find any rol',404)
+                        throw new HttpError('Could not find any rol',404)
                     }
 
                     verifyRolById.status = true;
@@ -1553,7 +1553,7 @@ export default (io,app) => {
                     }).catch(err => res.status(500).json(err));
 
                 }catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:'Rol active again!!',verifyRolById})
@@ -1565,7 +1565,7 @@ export default (io,app) => {
         app.post("/api/specialty/createSpecialty", async (req,res,next)=>{
                 const error = validationResult(req);
                 if(!error.isEmpty()){
-                    return next(new httpError('Invalid inputs passed, please check your data',422));
+                    return next(new HttpError('Invalid inputs passed, please check your data',422));
                 }
                 const {specialtyName} = req.body;
                 const createSpecialty = new Specialty({
@@ -1577,14 +1577,14 @@ export default (io,app) => {
                 try {
                     verifyNotDuplicatedName = await Specialty.find({specialtyName:specialtyName});
                     if(verifyNotDuplicatedName.length === 1){
-                        throw new httpError('This specialty was already exist',404)
+                        throw new HttpError('This specialty was already exist',404)
                     }
                     await createSpecialty.save().then(data =>{
                         io.emit("backend:create-specialty",data);
                         res.json({message:'PART 2, Your specialty was create succesfully',data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:'Your specialty was create succesfully',createSpecialty});
@@ -1596,10 +1596,10 @@ export default (io,app) => {
                 try {
                     getSpecialty = await Specialty.find().exec();
                     if(!getSpecialty){
-                        throw new httpError('Could not find any specialty',404)
+                        throw new HttpError('Could not find any specialty',404)
                     }
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.json({getSpecialty})
@@ -1612,10 +1612,10 @@ export default (io,app) => {
                 try {
                     getSpecialtyId = await Specialty.findById(specialtyId);
                     if(!getSpecialtyId){
-                        throw new httpError('Could not find any specialty',404)
+                        throw new HttpError('Could not find any specialty',404)
                     }
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({getSpecialtyId})
@@ -1624,7 +1624,7 @@ export default (io,app) => {
         app.put("/api/specialty/:sId", async (req,res,next) => {
                 const error = validationResult(req);
                 if(!error.isEmpty()){
-                    return next(new httpError('Invalid inputs passed, please check your data',422));
+                    return next(new HttpError('Invalid inputs passed, please check your data',422));
                 }
                 const {specialtyName} = req.body;
                 const specialtyId = req.params.sId;
@@ -1635,10 +1635,10 @@ export default (io,app) => {
                     verifyspecialtyId = await Specialty.findById(specialtyId);
 
                     if(!verifyspecialtyId){
-                        throw new httpError('Could not find any specialty',404)
+                        throw new HttpError('Could not find any specialty',404)
                     }
                     if(verifyNotDuplicatedName.length === 1){
-                        throw new httpError('This specialty was already exist',404)
+                        throw new HttpError('This specialty was already exist',404)
                     }
 
                     verifyspecialtyId.specialtyName = specialtyName;
@@ -1647,7 +1647,7 @@ export default (io,app) => {
                         res.json({message:'PART 2, Your specialty was modify succesfully',data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404))
+                    return next(new HttpError(`somenthing went wrong ${err}`,404))
                 }
 
                 res.status(201).json({message:'Your specialty was modify succesfully',verifyspecialtyId});
@@ -1661,7 +1661,7 @@ export default (io,app) => {
                     deleteSpecialtyId = await Specialty.findById(specialtyId);
 
                     if(!deleteSpecialtyId){
-                        throw new httpError('Could not find any specialty',404)
+                        throw new HttpError('Could not find any specialty',404)
                     }
 
                     deleteSpecialtyId.status = false;
@@ -1671,7 +1671,7 @@ export default (io,app) => {
                         res.json({message:'PART 2, your specialty was already canceled!',data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404));
+                    return next(new HttpError(`somenthing went wrong ${err}`,404));
                 }
 
                 res.status(201).json({message:'your specialty was already canceled!',deleteSpecialtyId})
@@ -1685,7 +1685,7 @@ export default (io,app) => {
                     activeSpecialtyId = await Specialty.findById(specialtyId);
 
                     if(!activeSpecialtyId){
-                        throw new httpError('Could not find any specialty',404)
+                        throw new HttpError('Could not find any specialty',404)
                     }
 
                     activeSpecialtyId.status = true;
@@ -1695,7 +1695,7 @@ export default (io,app) => {
                         res.json({message:'PART 2, your specialty was already actived!!!',data})
                     }).catch(err => res.status(500).json(err));
                 } catch(err){
-                    return next(new httpError(`somenthing went wrong ${err}`,404));
+                    return next(new HttpError(`somenthing went wrong ${err}`,404));
                 }
 
                 res.status(201).json({message:'your specialty was already actived!!!',activeSpecialtyId})

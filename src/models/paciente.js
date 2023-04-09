@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const pacienteSchema = mongoose.Schema({
     cedula:{ type:String, required:true, maxlength: 13, unique: true },
@@ -14,4 +14,4 @@ const pacienteSchema = mongoose.Schema({
     paymentMethod:{ type:String, require:false },
 })
 
-module.exports = mongoose.model('Paciente',pacienteSchema)
+export default mongoose.model('Paciente',pacienteSchema)

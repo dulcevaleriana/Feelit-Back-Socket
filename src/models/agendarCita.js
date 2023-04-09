@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const agendarCitaSchema = mongoose.Schema({
     idPaciente:{ type: mongoose.Types.ObjectId, required: true, ref: 'Paciente'},
@@ -23,4 +23,4 @@ const agendarCitaSchema = mongoose.Schema({
     doctorPrice:{type:Number,required:true}
 });
 
-module.exports = mongoose.model('AgendarCita',agendarCitaSchema);
+export default mongoose.model('AgendarCita',agendarCitaSchema);

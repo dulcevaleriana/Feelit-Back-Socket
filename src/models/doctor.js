@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const doctorSchema = mongoose.Schema({
     name:{ type:String, required:true },
@@ -27,4 +27,4 @@ const doctorSchema = mongoose.Schema({
     enviarExamenesPrice:{ type:Number, require:false }
 })
 
-module.exports = mongoose.model('Doctor',doctorSchema);
+export default mongoose.model('Doctor',doctorSchema);

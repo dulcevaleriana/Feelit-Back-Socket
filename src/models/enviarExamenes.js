@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const enviarExamenesSchema = mongoose.Schema({
     idPaciente:{ type: mongoose.Types.ObjectId, required: true, ref: 'Paciente'},
@@ -25,4 +25,4 @@ const enviarExamenesSchema = mongoose.Schema({
     doctorPrice:{type:Number,required:true}
 })
 
-module.exports = mongoose.model('EnviarExamenes',enviarExamenesSchema);
+export default mongoose.model('EnviarExamenes',enviarExamenesSchema);
